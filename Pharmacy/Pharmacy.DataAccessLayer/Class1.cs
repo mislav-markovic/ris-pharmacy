@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataLayer
+namespace Pharmacy.DataAccessLayer
 {
     public class Class1
     {

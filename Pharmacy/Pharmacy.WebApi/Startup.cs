@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace BusinessLayer
+namespace Pharmacy.WebApi
 {
     public class Startup
     {

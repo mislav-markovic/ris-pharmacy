@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BusinessLayer.Controllers
+namespace Pharmacy.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
