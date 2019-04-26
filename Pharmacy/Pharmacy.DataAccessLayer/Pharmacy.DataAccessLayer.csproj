@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Pharmacy.BusinessLayer\Pharmacy.BusinessLayer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Converters\" />
+  </ItemGroup>
+
 </Project>
