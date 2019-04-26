@@ -1,16 +1,19 @@
 ﻿using System;
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Pharmacy.DataAccessLayer.Models
 {
-    public partial class pharmacydbContext : DbContext
+    public partial class PharmacydbContext : DbContext
     {
-        public pharmacydbContext()
+        private string _connectionString;
+        public PharmacydbContext(string connectionString)
         {
+            _connectionString = connectionString;
         }
 
-        public pharmacydbContext(DbContextOptions<pharmacydbContext> options)
+        public PharmacydbContext(DbContextOptions<PharmacydbContext> options)
             : base(options)
         {
         }
@@ -33,8 +36,7 @@ namespace Pharmacy.DataAccessLayer.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("secret");
+                optionsBuilder.UseSqlServer(_connectionString);
             }
         }
 
