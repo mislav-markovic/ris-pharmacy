@@ -1,4 +1,5 @@
-﻿using DALModels = Pharmacy.DataAccessLayer.Models;
+﻿using System.Linq;
+using DALModels = Pharmacy.DataAccessLayer.Models;
 using BLLModels = Pharmacy.BusinessLayer.Models;
 
 namespace Pharmacy.DataAccessLayer.Converters
@@ -41,12 +42,21 @@ namespace Pharmacy.DataAccessLayer.Converters
 
     public static BLLModels.User ToBLL(this DALModels.User model)
     {
-      return null;
+      if (model == null) return null;
+      var pharmacy = model.Pharmacy.ToBLL();
+      var userRole = model.UserRole.ToBLL();
+      var prescription = model.Prescription.Select(v => v.ToBLL()).ToHashSet();
+      var order = model.Order.Select(v => v.ToBLL()).ToHashSet();
+      return new BLLModels.User
+      {
+        Id = model.UserId, Pharmacy = pharmacy, UserRole = userRole, PasswordHash = model.PasswordHash,
+        PasswordSalt = model.PasswordSalt, Username = model.Username, Prescription = prescription, Order = order
+      };
     }
 
     public static BLLModels.UserRole ToBLL(this DALModels.UserRole model)
     {
-      return null;
+      return model == null ? null : new BLLModels.UserRole {Id = model.UserRoleId, RoleName = model.RoleName};
     }
 
     public static BLLModels.Warehouse ToBLL(this DALModels.Warehouse model)
