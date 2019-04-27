@@ -4,6 +4,8 @@ namespace Pharmacy.BusinessLayer.Models
 {
   public class Stockpile
   {
+    public int Id { get; set; }
+    public Pharmacy Pharmacy { get; set; }
     public IDictionary<Medicine, (Alert, int)> Content { get; set; }
 
     public class Alert

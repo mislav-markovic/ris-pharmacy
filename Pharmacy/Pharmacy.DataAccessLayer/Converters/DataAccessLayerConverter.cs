@@ -7,12 +7,16 @@ namespace Pharmacy.DataAccessLayer.Converters
   {
     public static BLLModels.Location ToBLL(this DALModels.Location model)
     {
-      return null;
+      return model == null
+        ? null
+        : new BLLModels.Location {Id = model.LocationId, Address = model.Address, City = model.City};
     }
 
     public static BLLModels.Medicine ToBLL(this DALModels.Medicine model)
     {
-      return null;
+      return model == null
+        ? null
+        : new BLLModels.Medicine {Id = model.MedicineId, Name = model.Name, Price = model.Price};
     }
 
     public static BLLModels.Order ToBLL(this DALModels.Order model)
