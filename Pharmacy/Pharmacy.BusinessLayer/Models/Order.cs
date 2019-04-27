@@ -9,11 +9,11 @@ namespace Pharmacy.BusinessLayer.Models
     public DateTime OrderIssuedTime { get; set; }
     public DateTime OrderFulfilledTime { get; set; }
 
-    public virtual User User { get; set; }
+    public User User { get; set; }
 
-    public virtual Warehouse Warehouse { get; set; }
+    public Warehouse Warehouse { get; set; }
 
     //medicine and amount it was ordered
-    public virtual IDictionary<Medicine, int> OrderMedicine { get; set; }
+    public IDictionary<Medicine, int> OrderMedicine { get; set; }
   }
 }
