@@ -7,7 +7,7 @@ namespace Pharmacy.DataAccessLayer.Models
 {
     public partial class PharmacyDbContext : DbContext
     {
-        private string _connectionString;
+        private readonly string _connectionString;
         public PharmacyDbContext(string connectionString)
         {
             _connectionString = connectionString;
