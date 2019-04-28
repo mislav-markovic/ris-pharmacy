@@ -8,7 +8,7 @@ namespace Pharmacy.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class PrescriptionsController : ControllerBase
     {
         // GET api/values
         [HttpGet]
