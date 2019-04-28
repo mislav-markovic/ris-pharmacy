@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using DALModels = Pharmacy.DataAccessLayer.Models;
 using BLLModels = Pharmacy.BusinessLayer.Models;
 
@@ -22,22 +24,56 @@ namespace Pharmacy.DataAccessLayer.Converters
 
     public static BLLModels.Order ToBLL(this DALModels.Order model)
     {
-      return null;
+      return model == null
+        ? null
+        : new BLLModels.Order
+        {
+          Id = model.OrderId, Warehouse = model.Warehouse.ToBLL(), User = model.User.ToBLL(),
+          OrderFulfilledTime = model.OrderFulfilledTime, OrderIssuedTime = model.OrderIssuedTime, OrderMedicine = model
+            .OrderMedicine.Select(
+              val =>
+              {
+                var key = val.Medicine.ToBLL();
+                var value = val.Amount;
+                return KeyValuePair.Create(key, value);
+              }).ToDictionary(pair => pair.Key, pair => pair.Value)
+        };
     }
 
     public static BLLModels.Pharmacy ToBLL(this DALModels.Pharmacy model)
     {
-      return null;
+      var currentSuppliers =
+        model?.PharmacyWarehouse.Where(pw => pw.CurrentlySupplies).Select(pw => pw.Warehouse.ToBLL());
+      return model == null
+        ? null
+        : new BLLModels.Pharmacy {Id = model.PharmacyId, Name = model.Name, Location = model.Location.ToBLL()};
     }
 
     public static BLLModels.Prescription ToBLL(this DALModels.Prescription model)
     {
-      return null;
+      var medicine = model?.PrescriptionMedicine.Select(pm => KeyValuePair.Create(pm.Medicine.ToBLL(), pm.Amount))
+        .ToDictionary(kv => kv.Key, kv => kv.Value);
+      return model == null
+        ? null
+        : new BLLModels.Prescription
+        {
+          Buyer = model.Buyer, Id = model.PrescriptionId, SaleTime = model.SaleTime, User = model.User.ToBLL(),
+          Medicine = medicine
+        };
     }
 
     public static BLLModels.Stockpile ToBLL(this DALModels.Stockpile model)
     {
-      return null;
+      if (model == null) return null;
+
+      var alert = new BLLModels.Stockpile.Alert
+        {IsActive = Convert.ToBoolean(model.Alerts), Threshold = model.AlertThreshold};
+
+      return new BLLModels.Stockpile
+      {
+        Id = model.StockpileId, PharmacyId = model.PharmacyId, MedicineId = model.MedicineId, Amount = model.Amount,
+        MedicineAlert = alert
+      };
     }
 
     public static BLLModels.User ToBLL(this DALModels.User model)
@@ -45,12 +81,10 @@ namespace Pharmacy.DataAccessLayer.Converters
       if (model == null) return null;
       var pharmacy = model.Pharmacy.ToBLL();
       var userRole = model.UserRole.ToBLL();
-      var prescription = model.Prescription.Select(v => v.ToBLL()).ToHashSet();
-      var order = model.Order.Select(v => v.ToBLL()).ToHashSet();
       return new BLLModels.User
       {
         Id = model.UserId, Pharmacy = pharmacy, UserRole = userRole, PasswordHash = model.PasswordHash,
-        PasswordSalt = model.PasswordSalt, Username = model.Username, Prescription = prescription, Order = order
+        PasswordSalt = model.PasswordSalt, Username = model.Username
       };
     }
 
@@ -61,7 +95,15 @@ namespace Pharmacy.DataAccessLayer.Converters
 
     public static BLLModels.Warehouse ToBLL(this DALModels.Warehouse model)
     {
-      return null;
+      var pharmaciesSupplied = model?.PharmacyWarehouse.Where(pw => pw.CanSupply).Select(pw => pw.Pharmacy.ToBLL())
+        .ToHashSet();
+      return model == null
+        ? null
+        : new BLLModels.Warehouse
+        {
+          Id = model.WarehouseId, Name = model.Name, Location = model.Location.ToBLL(),
+          PharmaciesCanBeSupplied = pharmaciesSupplied
+        };
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using DALModels = Pharmacy.DataAccessLayer.Models;
 using BLLModels = Pharmacy.BusinessLayer.Models;
@@ -54,18 +54,15 @@ namespace Pharmacy.DataAccessLayer.Converters
         };
     }
 
-    public static IEnumerable<DALModels.Stockpile> ToDAL(this BLLModels.Stockpile model)
+    public static DALModels.Stockpile ToDAL(this BLLModels.Stockpile model)
     {
-      return model?.Content.Select(val =>
-      {
-        var (medicine, value) = val;
-        var (alert, amount) = value;
-        return new DALModels.Stockpile
+      return model == null
+        ? null
+        : new DALModels.Stockpile
         {
-          StockpileId = model.Id, Alerts = alert.IsActive ? 1 : 0, Amount = amount, AlertThreshold = alert.Threshold,
-          MedicineId = medicine.Id, PharmacyId = model.Pharmacy.Id
+          StockpileId = model.Id, MedicineId = model.MedicineId, PharmacyId = model.PharmacyId, Amount = model.Amount,
+          AlertThreshold = model.MedicineAlert.Threshold, Alerts = Convert.ToInt32(model.MedicineAlert.IsActive)
         };
-      }).AsEnumerable();
     }
 
     public static DALModels.User ToDAL(this BLLModels.User model)
@@ -86,19 +83,11 @@ namespace Pharmacy.DataAccessLayer.Converters
 
     public static DALModels.Warehouse ToDAL(this BLLModels.Warehouse model)
     {
-      var pharmaciesWarehouse = model?.PharmaciesSupplied
-        .Select(val => new DALModels.PharmacyWarehouse
-          {CanSupply = true, CurrentlySupplies = true, PharmacyId = val.Id, WarehouseId = model.Id}).ToHashSet();
-
-      pharmaciesWarehouse?.UnionWith(model.PharmaciesCouldBeSupplied.Select(val => new DALModels.PharmacyWarehouse
-        {CanSupply = true, CurrentlySupplies = false, PharmacyId = val.Id, WarehouseId = model.Id}));
-
       return model == null
         ? null
         : new DALModels.Warehouse
         {
-          WarehouseId = model.Id, Name = model.Name, LocationId = model.Location.Id,
-          PharmacyWarehouse = pharmaciesWarehouse
+          WarehouseId = model.Id, Name = model.Name, LocationId = model.Location.Id
         };
     }
   }

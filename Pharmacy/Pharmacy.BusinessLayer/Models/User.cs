@@ -13,11 +13,5 @@ namespace Pharmacy.BusinessLayer.Models
     public Pharmacy Pharmacy { get; set; }
 
     public UserRole UserRole { get; set; }
-
-    //Orders issued
-    public ICollection<Order> Order { get; set; }
-
-    //Prescirptions fullfiled
-    public ICollection<Prescription> Prescription { get; set; }
   }
 }

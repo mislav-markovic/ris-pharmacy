@@ -8,7 +8,6 @@ namespace Pharmacy.BusinessLayer.Models
     public string Name { get; set; }
 
     public Location Location { get; set; }
-    public ICollection<Pharmacy> PharmaciesSupplied { get; set; }
-    public ICollection<Pharmacy> PharmaciesCouldBeSupplied { get; set; }
+    public ICollection<Pharmacy> PharmaciesCanBeSupplied { get; set; }
   }
 }
