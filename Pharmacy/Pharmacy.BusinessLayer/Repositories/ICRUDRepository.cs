@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Pharmacy.BusinessLayer.Repositories
 {
@@ -8,6 +6,7 @@ namespace Pharmacy.BusinessLayer.Repositories
   {
     T Create(T model);
     T Read(int id);
+    IEnumerable<T> ReadAll();
     bool Update(T model);
     bool Delete(T model);
   }
