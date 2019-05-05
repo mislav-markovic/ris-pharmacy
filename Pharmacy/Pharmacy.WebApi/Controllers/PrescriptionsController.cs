@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Pharmacy.BusinessLayer.BusinessComponents;
+using Pharmacy.BusinessLayer.Models;
 using Pharmacy.BusinessLayer.Repositories;
 
 namespace Pharmacy.WebApi.Controllers
@@ -8,35 +10,56 @@ namespace Pharmacy.WebApi.Controllers
   [ApiController]
   public class PrescriptionsController : ControllerBase
   {
-    private readonly IPrescriptionRepository _prescriptionRepository;
+    private readonly PrescriptionBC _prescriptionBc;
 
-    // GET api/values
+    public PrescriptionsController(PrescriptionBC prescriptionBc)
+    {
+      _prescriptionBc = prescriptionBc;
+    }
+
+    // GET api/prescriptions
+    // gets the first prescription
     [HttpGet]
-    public ActionResult<IEnumerable<string>> Index()
+    public ActionResult<Prescription> Index()
     {
-      return new[] {"value1", "value2"};
+      return Ok(_prescriptionBc.GetFirst());
     }
 
-    // GET api/values/5
+    // GET api/prescriptions/5
     [HttpGet("{id}")]
-    public ActionResult<string> Details(int id)
+    public ActionResult<Prescription> Details(int id)
     {
-      return "value";
+      return _prescriptionBc.GetPrescription(id);
     }
 
-    // POST api/values
+    // POST api/prescriptions
     [HttpPost]
-    public void Create([FromBody] string value)
+    public ActionResult<Prescription> Create([FromBody] Prescription value)
     {
+      var newId = _prescriptionBc.AddPrescription(value);
+      return Ok(_prescriptionBc.GetPrescription(newId));
     }
 
-    // PUT api/values/5
+    [HttpGet("next/{currentId}")]
+    public ActionResult<int?> GetNext(int currentId)
+    {
+      return _prescriptionBc.GetIdOfNext(currentId);
+    }
+
+    [HttpGet("prev/{currentId}")]
+    public ActionResult<int?> GetPrev(int currentId)
+    {
+
+      return _prescriptionBc.GetIdOfPrevious(currentId);
+    }
+
+    // PUT api/prescriptions/5
     [HttpPut("{id}")]
-    public void Update(int id, [FromBody] string value)
+    public void Update(int id, [FromBody] Prescription value)
     {
     }
 
-    // DELETE api/values/5
+    // DELETE api/prescriptions/5
     [HttpDelete("{id}")]
     public void Delete(int id)
     {
