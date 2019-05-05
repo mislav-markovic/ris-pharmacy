@@ -1,16 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Pharmacy.BusinessLayer.Models;
 using Pharmacy.BusinessLayer.Repositories;
+using Pharmacy.DataAccessLayer.Converters;
+using Pharmacy.DataAccessLayer.Models;
+using User = Pharmacy.BusinessLayer.Models.User;
 
 namespace Pharmacy.DataAccessLayer.Repositories
 {
   public class UserRepository : IUserRepository
   {
+    private readonly PharmacyDbContext _db;
+
+    public UserRepository(PharmacyDbContext db)
+    {
+      _db = db;
+    }
+
     public User Create(User model)
     {
-      throw new NotImplementedException();
+      var dal = model.ToDAL();
+      _db.User.Add(dal);
+      _db.SaveChanges();
+      return _db.User.Find(dal.UserId).ToBLL();
     }
 
     public User Read(int id)
