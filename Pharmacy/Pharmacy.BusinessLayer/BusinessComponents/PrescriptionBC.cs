@@ -26,7 +26,7 @@ namespace Pharmacy.BusinessLayer.BusinessComponents
 
     public Prescription GetFirst()
     {
-      return _prescriptionRepository.ReadAll().First();
+      return _prescriptionRepository.ReadAll().FirstOrDefault();
     }
 
     public int? GetIdOfNext(int current)

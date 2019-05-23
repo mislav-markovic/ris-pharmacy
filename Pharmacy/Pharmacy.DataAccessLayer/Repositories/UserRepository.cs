@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Pharmacy.BusinessLayer.Repositories;
 using Pharmacy.DataAccessLayer.Converters;
 using Pharmacy.DataAccessLayer.Models;
@@ -26,6 +29,11 @@ namespace Pharmacy.DataAccessLayer.Repositories
     public User Read(int id)
     {
       throw new NotImplementedException();
+    }
+
+    public IEnumerable<User> ReadAll()
+    {
+      return _db.User.Include(u => u.UserRole).Select(u => u.ToBLL());
     }
 
     public bool Update(User model)

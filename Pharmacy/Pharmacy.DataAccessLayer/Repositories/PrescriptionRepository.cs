@@ -1,4 +1,7 @@
-﻿using Pharmacy.BusinessLayer.Repositories;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Pharmacy.BusinessLayer.Repositories;
 using Pharmacy.DataAccessLayer.Converters;
 using Pharmacy.DataAccessLayer.Models;
 using Prescription = Pharmacy.BusinessLayer.Models.Prescription;
@@ -24,8 +27,13 @@ namespace Pharmacy.DataAccessLayer.Repositories
 
     public Prescription Read(int id)
     {
-      var dal = _db.Prescription.Find(id);
+      var dal = _db.Prescription.Include(pr => pr.User).Include(pr => pr.PrescriptionMedicine).FirstOrDefault(elem => elem.PrescriptionId == id);
       return dal?.ToBLL();
+    }
+
+    public IEnumerable<Prescription> ReadAll()
+    {
+      return _db.Prescription.Include(pr => pr.User).Include(pr => pr.PrescriptionMedicine).Select(elem => elem.ToBLL());
     }
 
     public bool Update(Prescription model)

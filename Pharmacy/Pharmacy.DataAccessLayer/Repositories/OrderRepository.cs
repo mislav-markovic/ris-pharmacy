@@ -18,6 +18,11 @@ namespace Pharmacy.DataAccessLayer.Repositories
       throw new NotImplementedException();
     }
 
+    public IEnumerable<Order> ReadAll()
+    {
+      throw new NotImplementedException();
+    }
+
     public bool Update(Order model)
     {
       throw new NotImplementedException();

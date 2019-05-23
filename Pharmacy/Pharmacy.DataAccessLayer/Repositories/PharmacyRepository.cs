@@ -17,6 +17,11 @@ namespace Pharmacy.DataAccessLayer.Repositories
       throw new NotImplementedException();
     }
 
+    public IEnumerable<BusinessLayer.Models.Pharmacy> ReadAll()
+    {
+      throw new NotImplementedException();
+    }
+
     public bool Update(BusinessLayer.Models.Pharmacy model)
     {
       throw new NotImplementedException();
