@@ -15,6 +15,11 @@ namespace Pharmacy.BusinessLayer.BusinessComponents
       return _userRepository.ReadAll();
     }
 
+    public User Read(int id)
+    {
+      return _userRepository.Read(id);
+    }
+
     public UserBC(IUserRepository userRepository)
     {
       _userRepository = userRepository;

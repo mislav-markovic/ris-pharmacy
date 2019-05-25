@@ -28,7 +28,7 @@ namespace Pharmacy.DataAccessLayer.Repositories
 
     public User Read(int id)
     {
-      throw new NotImplementedException();
+      return _db.User.Include(u => u.UserRole).First(e => e.UserId == id).ToBLL();
     }
 
     public IEnumerable<User> ReadAll()

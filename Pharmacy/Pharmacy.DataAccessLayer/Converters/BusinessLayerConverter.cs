@@ -48,9 +48,7 @@ namespace Pharmacy.DataAccessLayer.Converters
         : new DALModels.Prescription
         {
           PrescriptionId = model.Id, SaleTime = model.SaleTime, UserId = model.User.Id, Buyer = model.Buyer,
-          PrescriptionMedicine = model.Medicine.Select(
-            pair => new DALModels.PrescriptionMedicine
-              {Amount = pair.Value, MedicineId = pair.Key.Id, PrescriptionId = model.Id}).ToHashSet()
+          PrescriptionMedicine = model.Medicine?.Select(e => e.ToDAL()).ToHashSet()
         };
     }
 
@@ -88,6 +86,17 @@ namespace Pharmacy.DataAccessLayer.Converters
         : new DALModels.Warehouse
         {
           WarehouseId = model.Id, Name = model.Name, LocationId = model.Location.Id
+        };
+    }
+
+    public static DALModels.PrescriptionMedicine ToDAL(this BLLModels.PrescriptionMedicine model)
+    {
+      return model == null
+        ? null
+        : new DALModels.PrescriptionMedicine
+        {
+          Amount = model.Amount, PrescriptionId = model.PrescriptionId, MedicineId = model.MedicineId,
+          PrescriptionMedicineId = model.PrescriptionMedicineId, Medicine = model.Medicine?.ToDAL()
         };
     }
   }

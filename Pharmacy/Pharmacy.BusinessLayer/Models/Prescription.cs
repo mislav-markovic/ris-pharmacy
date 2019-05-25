@@ -12,6 +12,6 @@ namespace Pharmacy.BusinessLayer.Models
     public User User { get; set; }
 
     //Medicine and amount of it
-    public IDictionary<Medicine, int> Medicine { get; set; }
+    public IList<PrescriptionMedicine> Medicine { get; set; }
   }
 }

@@ -8,13 +8,9 @@ namespace Pharmacy.PresentationLayer.Models
   public class PrescriptionDetailsVIewModel
   {
     public PrescriptionDetailsVIewModel(int id, string buyer, DateTime saleTime, UserViewModel user,
-      IDictionary<Medicine, int> medicine, int? nextPrescriptionId, int? previousPrescriptionId)
+      IList<PrescriptionMedicine> medicine, int? nextPrescriptionId, int? previousPrescriptionId)
     {
-      var medicineVm = medicine.Select(pair =>
-      {
-        var (k, v) = pair;
-        return new MedicineDetailsViewModel(k.Name, k.Price, v);
-      });
+      var medicineVm = medicine.Select(elem => new MedicineDetailsViewModel(elem.Medicine, elem.Amount){PrescriptionMedicineId = elem.PrescriptionMedicineId});
       Id = id;
       Buyer = buyer;
       SaleTime = saleTime;

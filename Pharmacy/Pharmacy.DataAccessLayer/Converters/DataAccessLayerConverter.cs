@@ -51,14 +51,12 @@ namespace Pharmacy.DataAccessLayer.Converters
 
     public static BLLModels.Prescription ToBLL(this DALModels.Prescription model)
     {
-      var medicine = model?.PrescriptionMedicine.Select(pm => KeyValuePair.Create(pm.Medicine.ToBLL(), pm.Amount))
-        .ToDictionary(kv => kv.Key, kv => kv.Value);
       return model == null
         ? null
         : new BLLModels.Prescription
         {
           Buyer = model.Buyer, Id = model.PrescriptionId, SaleTime = model.SaleTime, User = model.User.ToBLL(),
-          Medicine = medicine
+          Medicine = model.PrescriptionMedicine?.Select(e => e.ToBLL()).ToList()
         };
     }
 
@@ -104,6 +102,15 @@ namespace Pharmacy.DataAccessLayer.Converters
           Id = model.WarehouseId, Name = model.Name, Location = model.Location.ToBLL(),
           PharmaciesCanBeSupplied = pharmaciesSupplied
         };
+    }
+
+    public static BLLModels.PrescriptionMedicine ToBLL(this DALModels.PrescriptionMedicine model)
+    {
+      return new BLLModels.PrescriptionMedicine
+      {
+        Amount = model.Amount, Medicine = model.Medicine.ToBLL(), MedicineId = model.MedicineId,
+        PrescriptionMedicineId = model.PrescriptionMedicineId, PrescriptionId = model.PrescriptionId
+      };
     }
   }
 }

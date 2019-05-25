@@ -44,12 +44,13 @@ namespace Pharmacy.PresentationLayer
 
       services.AddTransient<PrescriptionBC>();
       services.AddTransient<UserBC>();
+      services.AddTransient<MedicineBC>();
 
       services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
       services.AddScoped<IUserRepository, UserRepository>();
       services.AddScoped<IPharmacyRepository, PharmacyRepository>();
       services.AddScoped<IStockpileRepository, StockpileRepository>();
-      services.AddScoped<IUserRepository, UserRepository>();
+      services.AddScoped<IMedicineRepository, MedicineRepository>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -7,34 +7,35 @@ namespace Pharmacy.PresentationLayer.Models
 {
   public class PrescriptionCreateViewModel
   {
-    public PrescriptionCreateViewModel(string buyer, DateTime saleTime, UserViewModel chosenUser,
-      IEnumerable<UserViewModel> availableUsers, IDictionary<Medicine, int> medicine)
+    public PrescriptionCreateViewModel(string buyer, DateTime saleTime, int chosenUser,
+      IEnumerable<UserViewModel> availableUsers, IList<PrescriptionMedicine> medicine)
     {
-      var medicineVm = medicine.Select(pair =>
-      {
-        var (k, v) = pair;
-        return new MedicineDetailsViewModel(k.Name, k.Price, v);
-      });
+      var medicineVm = medicine.Select(elem => new MedicineDetailsViewModel(elem.Medicine, elem.Amount){PrescriptionMedicineId = elem.PrescriptionMedicineId});
       Buyer = buyer;
       SaleTime = saleTime;
-      ChosenUser = chosenUser;
+      ChosenUserId = chosenUser;
       AvailableUsers = availableUsers;
-      Medicine = medicineVm;
+      Medicine = medicineVm.ToList();
     }
 
     public PrescriptionCreateViewModel(Prescription prescription, IEnumerable<UserViewModel> allUsers) : this(
-      prescription.Buyer, prescription.SaleTime, new UserViewModel(prescription.User), allUsers, prescription.Medicine)
+      prescription.Buyer, prescription.SaleTime, prescription.User.Id, allUsers, prescription.Medicine)
     {
     }
 
-    public string Buyer { get; }
-    public DateTime SaleTime { get; }
+    public PrescriptionCreateViewModel()
+    {
+    }
 
-    public UserViewModel ChosenUser { get; }
+    public string Buyer { get; set; }
+    public DateTime SaleTime { get; set; }
 
-    public IEnumerable<UserViewModel> AvailableUsers { get; }
+    public int ChosenUserId { get; set; }
+
+    public IEnumerable<UserViewModel> AvailableUsers { get; set; }
 
     //Medicine and amount of it
-    public IEnumerable<MedicineDetailsViewModel> Medicine { get; }
+    public List<MedicineDetailsViewModel> Medicine { get; set; } = new List<MedicineDetailsViewModel>();
+    public IEnumerable<MedicineDetailsViewModel> AvailableMedicine { get; set; }
   }
 }

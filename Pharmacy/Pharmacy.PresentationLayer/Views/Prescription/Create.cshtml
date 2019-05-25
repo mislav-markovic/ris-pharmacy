@@ -1,35 +1,137 @@
-﻿@model Pharmacy.PresentationLayer.Models.PrescriptionCreateViewModel
+﻿@model PrescriptionCreateViewModel
 
 @{
-    ViewData["Title"] = "Create";
+  ViewData["Title"] = "Edit";
 }
 
-<h1>Create</h1>
-
-<h4>PrescriptionCreateViewModel</h4>
+<h1>Prescription Creating</h1>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Buyer" class="control-label"></label>
-                <input asp-for="Buyer" class="form-control" />
-                <span asp-validation-for="Buyer" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SaleTime" class="control-label"></label>
-                <input asp-for="SaleTime" class="form-control" />
-                <span asp-validation-for="SaleTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+<div id="container">
+  <div class="col-md-8">
+    <form asp-action="Create" method="post">
+      <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+      <div class="form-group">
+        <label asp-for="Buyer" class="control-label"></label>
+        <input asp-for="Buyer" class="form-control" />
+        <span asp-validation-for="Buyer" class="text-danger"></span>
+      </div>
+      <div class="form-group">
+        <label asp-for="SaleTime" class="control-label"></label>
+        <input asp-for="SaleTime" class="form-control" />
+        <span asp-validation-for="SaleTime" class="text-danger"></span>
+      </div>
+      <div class="form-group">
+        <select asp-for="ChosenUserId"
+                asp-items="@(new SelectList(Model.AvailableUsers, "Id", "Username"))">
+          <option>Please select one</option>
+        </select>
+      </div>
+
+
+      <div class="form-group">
+        <h3>Medicines on prescription</h3> <hr />
+        <div class="center-block">
+          <a class="btn btn-default" id="add-medicine-btn">Add item</a>
+        </div>
+        <table class="table table-responsive table-striped" id="medicine-table">
+          <thead>
+            <tr>
+              <th>Medicine</th>
+              <th>Amount</th>
+              <th>Price</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (var i = 0; i < Model.Medicine.Count; ++i)
+            {
+              <tr>
+                <td>
+                  @Html.Hidden("Medicine.Index", i)
+                  @Html.HiddenFor(m => m.Medicine[i].Name)
+                  @Html.HiddenFor(m => m.Medicine[i].PrescriptionMedicineId)
+                  @Html.DropDownListFor(m => m.Medicine[i].Id, new SelectList(Model.AvailableMedicine, "Id", "Name"), new { @class = "form-control", id = $"medicine-selector[{i}]" })
+                </td>
+                <td>
+                  @Html.EditorFor(m => m.Medicine[i].Amount, new { htmlAttributes = new { @class = "form-control" } })
+                </td>
+                <td>
+                  @Html.EditorFor(m => m.Medicine[i].Price, new { htmlAttributes = new { @class = "form-control" } })
+                </td>
+                <td>
+                  <button id="remove-medicine-btn" type="button" class="btn btn-default">Remove</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+
+      <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary" />
+      </div>
+    </form>
+  </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+  <a asp-action="Index">Back</a>
 </div>
 
+@{
+  var _medicines = "";
+  foreach (var m in Model.AvailableMedicine)
+  {
+    _medicines += $"<option value=\"{m.Id}\">{m.Name}</option>";
+  }
+}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+  var medicineCounter = @Model.Medicine.Count;
+  var medicines = '@Html.Raw(_medicines)';
+
+  $(function() {
+    $("#container").on('click',
+      '#add-medicine-btn',
+      function() {
+        var row =
+          '<tr>\n' +
+            '<td>\n' +
+            '<input name="Medicine.Index" type="hidden" value="' +
+            medicineCounter +
+            '">\n' +
+            '<input name="Medicine[' +
+            medicineCounter +
+            '].PrescriptionMedicineId" type="hidden" value="-1">\n' +
+            '<input name="Medicine[' +
+            medicineCounter +
+            '].Price" type="number" value="0">\n' +
+            '<select class="form-control" id="medicine-selector[' +
+            medicineCounter +
+            ']" name="Medicine[' +
+            medicineCounter +
+            '].Id">' +
+            medicines +
+            '</select>\n' +
+            '</td>\n' +
+            '<td>\n' +
+            '<input class="form-control text-box single-line" name="Medicine[' +
+            medicineCounter +
+            '].Amount" type="number" value="0">\n' +
+            '</td>\n' +
+            '<td>\n' +
+            '<button type="button" class="btn btn-default button" id="remove-medicine-btn">Remove</button>\n' +
+            '</td>\n' +
+            '</tr>';
+
+        $('#medicine-table tr:last').after(row);
+        $("#medicine-selector\\[" + medicineCounter + "\\]").val(-1);
+
+        medicineCounter++;
+      });
+    $("#container").on('click', '#remove-medicine-btn', function () {
+      $(this).closest("tr").remove();
+    });
+  });
+</script>

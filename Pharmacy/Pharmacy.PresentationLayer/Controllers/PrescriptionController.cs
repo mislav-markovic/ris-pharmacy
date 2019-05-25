@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pharmacy.BusinessLayer.BusinessComponents;
 using Pharmacy.BusinessLayer.Models;
@@ -10,13 +10,15 @@ namespace Pharmacy.PresentationLayer.Controllers
 {
   public class PrescriptionController : Controller
   {
+    private readonly MedicineBC _medicineBc;
     private readonly PrescriptionBC _prescriptionBc;
     private readonly UserBC _userBc;
 
-    public PrescriptionController(PrescriptionBC prescriptionBc, UserBC userBc)
+    public PrescriptionController(PrescriptionBC prescriptionBc, UserBC userBc, MedicineBC medicineBc)
     {
       _prescriptionBc = prescriptionBc;
       _userBc = userBc;
+      _medicineBc = medicineBc;
     }
 
     // GET: Prescription
@@ -26,7 +28,7 @@ namespace Pharmacy.PresentationLayer.Controllers
 
       if (result == null) return View();
       var model = GetDetails(result.Id);
-      return View(model);
+      return View(nameof(Details), model);
     }
 
     // GET: Prescription/Details/5
@@ -42,22 +44,50 @@ namespace Pharmacy.PresentationLayer.Controllers
     // GET: Prescription/Create
     public ActionResult Create()
     {
-      return View();
+      var model = new PrescriptionCreateViewModel {SaleTime = DateTime.Now};
+      var allUsers = _userBc.ReadAll() ?? new List<User>();
+      var allMedicine = _medicineBc.ReadAll() ?? new List<Medicine>();
+
+      model.AvailableUsers = allUsers.Select(elem => new UserViewModel(elem));
+      model.AvailableMedicine = allMedicine.Select(elem => new MedicineDetailsViewModel(elem, 0));
+
+      return View(model);
     }
 
     // POST: Prescription/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public ActionResult Create([FromBody] PrescriptionCreateViewModel model)
+    public ActionResult Create([FromForm] PrescriptionCreateViewModel model)
     {
+      var prescriptionMedicines = model.Medicine.Select(elem => new PrescriptionMedicine
+      {
+        Amount = elem.Amount,
+        MedicineId = elem.Id
+      }).ToList();
+
+
+      var user = new User {Id = model.ChosenUserId};
+      var createModel = new Prescription
+        {Buyer = model.Buyer, SaleTime = model.SaleTime, User = user};
       try
       {
-        var prescription = new Prescription {Buyer = model.Buyer, SaleTime = model.SaleTime};
-        return RedirectToAction(nameof(Index));
+        foreach (var medicineVm in model.Medicine)
+        {
+          var med = new Medicine {Id = medicineVm.Id, Name = medicineVm.Name, Price = medicineVm.Price};
+          _medicineBc.UpdateMedicine(med);
+        }
+
+        var result = _prescriptionBc.AddPrescription(createModel);
+
+        foreach (var prescriptionMedicine in prescriptionMedicines)
+          _prescriptionBc.AddMedicineToPrescription(result, prescriptionMedicine.MedicineId,
+            prescriptionMedicine.Amount, null);
+
+        return RedirectToAction(nameof(Details), result);
       }
-      catch
+      catch (Exception e)
       {
-        return View();
+        return View(model);
       }
     }
 
@@ -65,39 +95,57 @@ namespace Pharmacy.PresentationLayer.Controllers
     public ActionResult Edit(int id)
     {
       var model = GetCreateEdit(id);
-      if (model == null)
-      {
-        return RedirectToAction(nameof(Index));
-      }
+      if (model == null) return RedirectToAction(nameof(Index));
       return View(model);
     }
 
-    // POST: Prescription/Edit/5
+    private Medicine GetMedicineWithPrice(int id, decimal price)
+    {
+      var data = _medicineBc.Read(id);
+      data.Price = price;
+      return data;
+    }
+
+    // POST: Prescription/Edit
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public ActionResult Edit(int id, [FromBody] PrescriptionCreateViewModel model)
+    public ActionResult Edit(int id, [FromForm] PrescriptionCreateViewModel model)
     {
+      var user = new User {Id = model.ChosenUserId};
+      var prescriptionMedicines = model.Medicine.Select(elem => new PrescriptionMedicine
+      {
+        Amount = elem.Amount, MedicineId = elem.Id, PrescriptionId = id,
+        PrescriptionMedicineId = elem.PrescriptionMedicineId > 0 ? elem.PrescriptionMedicineId : 0,
+        Medicine = GetMedicineWithPrice(elem.Id, elem.Price)
+      }).ToList();
+
+      foreach (var medicineVm in model.Medicine)
+      {
+        var med = new Medicine {Id = medicineVm.Id, Name = medicineVm.Name, Price = medicineVm.Price};
+        _medicineBc.UpdateMedicine(med);
+      }
+
+      var updatedModel = new Prescription
+        {Id = id, Buyer = model.Buyer, SaleTime = model.SaleTime, User = user, Medicine = prescriptionMedicines};
       try
       {
-        // TODO: Add update logic here
+        var result = _prescriptionBc.UpdatePrescription(id, updatedModel);
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Details), result.Id);
       }
-      catch
+      catch (Exception e)
       {
-        return View();
+        return View(model);
       }
     }
 
     // POST: Prescription/Delete/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
+    [HttpGet]
     public ActionResult Delete(int id)
     {
       try
       {
-        // TODO: Add delete logic here
-
+        _prescriptionBc.Delete(id);
         return RedirectToAction(nameof(Index));
       }
       catch
@@ -125,10 +173,12 @@ namespace Pharmacy.PresentationLayer.Controllers
     {
       var model = _prescriptionBc.GetPrescription(id);
       var allUsers = _userBc.ReadAll() ?? new List<User>();
+      var allMedicine = _medicineBc.ReadAll() ?? new List<Medicine>();
 
       if (model == null) return null;
 
       var result = new PrescriptionCreateViewModel(model, allUsers.Select(u => new UserViewModel(u)));
+      result.AvailableMedicine = allMedicine.Select(m => new MedicineDetailsViewModel(m, 0));
       return result;
     }
   }
