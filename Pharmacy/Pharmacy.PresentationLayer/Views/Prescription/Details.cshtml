@@ -15,6 +15,13 @@
     <a asp-action="Details" asp-route-id="@Model.NextPrescriptionId.Value">Next</a>
   }
 </div>
+<div class="row" id="message">
+  @if (!string.IsNullOrWhiteSpace(Model.Message))
+  {
+    var @class = Model.MessageType == "s" ? "success" : "alert";
+    <span class="@@class">@Model.Message</span>
+  }
+</div>
 
 <div>
   <hr/>
@@ -37,22 +44,64 @@
     <dd class="col-sm-10">
       @Html.DisplayFor(model => model.SaleTime)
     </dd>
-  </dl>
-  <dl class="row">
     <dt class="col-sm-2">
-      @Html.DisplayNameFor(model => model.Medicine)
+      @Html.DisplayNameFor(model => model.User)
     </dt>
-    @foreach (var medicine in Model.Medicine)
-    {
-      <dd class="col-sm-10">
-        @medicine.Name : @medicine.Amount
-      </dd>
-    }
+    <dd class="col-sm-10">
+      @Html.DisplayFor(model => model.User.Username)
+    </dd>
+    <dt class="col-sm-2">
+      Total Price
+    </dt>
+    <dd class="col-sm-10">
+      @Model.Medicine.Sum(med => med.Amount*med.Price)
+    </dd>
   </dl>
+  <table class="table table-responsive table-striped" id="medicine-table">
+    <thead>
+    <tr>
+      <th>Medicine Name</th>
+      <th>Amount</th>
+      <th>Price per unit</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach(var medicine in Model.Medicine)
+    {
+      <tr>
+        <td>
+          @medicine.Name
+        </td>
+        <td>
+          @medicine.Amount
+        </td>
+        <td>
+          @medicine.Price
+        </td>
+      </tr>
+    }
+    </tbody>
+  </table>
 </div>
 <div>
   @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
   @Html.ActionLink("Create", "Create") |
-  <a asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+  <a asp-action="Delete" asp-route-id="@Model.Id">Delete</a> |
+  <a asp-action="Fulfill" asp-route-id="@Model.Id">Fulfill Prescription</a>
 </div>
 
+
+<style>
+  .alert {
+    padding: 20px;
+    background-color: #f44336; /* Red */
+    color: white;
+    margin-bottom: 15px;
+  }
+  .success {
+    padding: 20px;
+    background-color: greenyellow; /* Red */
+    color: white;
+    margin-bottom: 15px;
+  }
+</style>

@@ -68,23 +68,24 @@ namespace Pharmacy.BusinessLayer.BusinessComponents
       return _prescriptionRepository.RemoveMedicineFromPrescription(prescriptionMedicineId);
     }
 
-    public bool FulfillPrescription(Prescription prescription, int pharmacyId)
+    public bool FulfillPrescription(Prescription prescription)
     {
       if (!ValidatePrescription(prescription, true)) return false;
-      var pharmacy = _pharmacyRepository.Read(pharmacyId);
+      var pharmacyId = _userRepository.WorksAt(prescription.User.Id);
       var medicine = prescription.Medicine.Select(med => med.MedicineId).ToHashSet();
-      var stockpile = pharmacy.Stockpile.Select(stock => stock.MedicineId).ToHashSet();
+      var stockpile = _stockpileRepository.ForPharmacy(pharmacyId).ToList();
+      var stockpileMedicine = stockpile.Select(st => st.MedicineId).ToHashSet();
       // if stockpile doesn't contain requested medicine
-      if (!medicine.All(med => stockpile.Contains(med))) return false;
+      if (!medicine.All(med => stockpileMedicine.Contains(med))) return false;
 
-      var stockpileDict = pharmacy.Stockpile.ToDictionary(k => k.MedicineId, v => v.Amount);
+      var stockpileDict = stockpile.ToDictionary(k => k.MedicineId, v => v.Amount);
       foreach (var prescriptionMedicine in prescription.Medicine)
       {
         var newAmount = stockpileDict[prescriptionMedicine.MedicineId] - prescriptionMedicine.Amount;
         // check that requested amount can be fulfilled 
         if (newAmount < 0) return false;
 
-        var stockpileModel = pharmacy.Stockpile.First(st => st.MedicineId == prescriptionMedicine.MedicineId);
+        var stockpileModel = stockpile.First(st => st.MedicineId == prescriptionMedicine.MedicineId);
         stockpileModel = _stockpileRepository.Read(stockpileModel.Id);
         // update the amount in stockpile
         stockpileModel.Amount = newAmount;

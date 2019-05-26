@@ -26,7 +26,7 @@ namespace Pharmacy.PresentationLayer.Controllers
     {
       var result = _prescriptionBc.GetFirst();
 
-      if (result == null) return View();
+      if (result == null) return RedirectToAction(nameof(Create));
       var model = GetDetails(result.Id);
       return View(nameof(Details), model);
     }
@@ -39,6 +39,27 @@ namespace Pharmacy.PresentationLayer.Controllers
       if (result == null) return RedirectToAction(nameof(Index));
 
       return View(result);
+    }
+
+    
+    public ActionResult Fulfill(int id)
+    {
+      var prescription = _prescriptionBc.GetPrescription(id);
+      var result = _prescriptionBc.FulfillPrescription(prescription);
+
+      var viewModel = GetDetails(id);
+      if (result)
+      {
+        viewModel.Message = "Prescription fulfilled successfully";
+        viewModel.MessageType = "s";
+      }
+      else
+      {
+        viewModel.Message = "Prescription fulfilled unsuccessfully";
+        viewModel.MessageType = "f";
+      }
+
+      return View("Details", viewModel);
     }
 
     // GET: Prescription/Create
@@ -68,21 +89,10 @@ namespace Pharmacy.PresentationLayer.Controllers
 
       var user = new User {Id = model.ChosenUserId};
       var createModel = new Prescription
-        {Buyer = model.Buyer, SaleTime = model.SaleTime, User = user};
+        {Buyer = model.Buyer, SaleTime = model.SaleTime, User = user, Medicine = prescriptionMedicines};
       try
       {
-        foreach (var medicineVm in model.Medicine)
-        {
-          var med = new Medicine {Id = medicineVm.Id, Name = medicineVm.Name, Price = medicineVm.Price};
-          _medicineBc.UpdateMedicine(med);
-        }
-
         var result = _prescriptionBc.AddPrescription(createModel);
-
-        foreach (var prescriptionMedicine in prescriptionMedicines)
-          _prescriptionBc.AddMedicineToPrescription(result, prescriptionMedicine.MedicineId,
-            prescriptionMedicine.Amount, null);
-
         return RedirectToAction(nameof(Details), result);
       }
       catch (Exception e)
@@ -102,7 +112,7 @@ namespace Pharmacy.PresentationLayer.Controllers
     private Medicine GetMedicineWithPrice(int id, decimal price)
     {
       var data = _medicineBc.Read(id);
-      data.Price = price;
+      data.Price = price > 0 ? price : data.Price;
       return data;
     }
 
@@ -118,12 +128,6 @@ namespace Pharmacy.PresentationLayer.Controllers
         PrescriptionMedicineId = elem.PrescriptionMedicineId > 0 ? elem.PrescriptionMedicineId : 0,
         Medicine = GetMedicineWithPrice(elem.Id, elem.Price)
       }).ToList();
-
-      foreach (var medicineVm in model.Medicine)
-      {
-        var med = new Medicine {Id = medicineVm.Id, Name = medicineVm.Name, Price = medicineVm.Price};
-        _medicineBc.UpdateMedicine(med);
-      }
 
       var updatedModel = new Prescription
         {Id = id, Buyer = model.Buyer, SaleTime = model.SaleTime, User = user, Medicine = prescriptionMedicines};

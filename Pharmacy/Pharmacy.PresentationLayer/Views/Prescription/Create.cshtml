@@ -38,7 +38,6 @@
             <tr>
               <th>Medicine</th>
               <th>Amount</th>
-              <th>Price</th>
               <th></th>
             </tr>
           </thead>
@@ -50,13 +49,11 @@
                   @Html.Hidden("Medicine.Index", i)
                   @Html.HiddenFor(m => m.Medicine[i].Name)
                   @Html.HiddenFor(m => m.Medicine[i].PrescriptionMedicineId)
+                  @Html.HiddenFor(m => m.Medicine[i].Price)
                   @Html.DropDownListFor(m => m.Medicine[i].Id, new SelectList(Model.AvailableMedicine, "Id", "Name"), new { @class = "form-control", id = $"medicine-selector[{i}]" })
                 </td>
                 <td>
                   @Html.EditorFor(m => m.Medicine[i].Amount, new { htmlAttributes = new { @class = "form-control" } })
-                </td>
-                <td>
-                  @Html.EditorFor(m => m.Medicine[i].Price, new { htmlAttributes = new { @class = "form-control" } })
                 </td>
                 <td>
                   <button id="remove-medicine-btn" type="button" class="btn btn-default">Remove</button>
@@ -106,7 +103,7 @@
             '].PrescriptionMedicineId" type="hidden" value="-1">\n' +
             '<input name="Medicine[' +
             medicineCounter +
-            '].Price" type="number" value="0">\n' +
+            '].Price" type="hidden" value="-1">\n' +
             '<select class="form-control" id="medicine-selector[' +
             medicineCounter +
             ']" name="Medicine[' +

@@ -32,6 +32,9 @@ namespace Pharmacy.PresentationLayer.Models
 
     public UserViewModel User { get; }
 
+    public string Message { get; set; }
+    public string MessageType { get; set; }
+
     //Medicine and amount of it
     public IEnumerable<MedicineDetailsViewModel> Medicine { get; }
     public int? NextPrescriptionId { get; }

@@ -142,7 +142,7 @@ namespace Pharmacy.DataAccessLayer.Models
 
             modelBuilder.Entity<Prescription>(entity =>
             {
-                entity.Property(e => e.PrescriptionId).ValueGeneratedNever();
+                entity.Property(e => e.PrescriptionId).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.Buyer)
                     .IsRequired()
@@ -160,9 +160,6 @@ namespace Pharmacy.DataAccessLayer.Models
 
             modelBuilder.Entity<PrescriptionMedicine>(entity =>
             {
-                entity.HasKey(e => new { e.PrescriptionId, e.MedicineId })
-                    .HasName("PK_PrescriptionMedicine_1");
-
                 entity.HasOne(d => d.Medicine)
                     .WithMany(p => p.PrescriptionMedicine)
                     .HasForeignKey(d => d.MedicineId)
@@ -174,6 +171,7 @@ namespace Pharmacy.DataAccessLayer.Models
                     .HasForeignKey(d => d.PrescriptionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_PrescriptionMedicine_Prescription");
+                entity.Property(p => p.PrescriptionMedicineId).ValueGeneratedOnAdd();
             });
 
             modelBuilder.Entity<Stockpile>(entity =>

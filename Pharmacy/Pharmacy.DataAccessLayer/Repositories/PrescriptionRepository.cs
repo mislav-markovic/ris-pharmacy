@@ -21,9 +21,8 @@ namespace Pharmacy.DataAccessLayer.Repositories
     public Prescription Create(Prescription model)
     {
       var dal = model.ToDAL();
-      var id = _db.Prescription.Max(elem => elem.PrescriptionId);
-      dal.PrescriptionId = id + 1;
       _db.Prescription.Add(dal);
+      _db.SaveChanges();
       _db.SaveChanges();
       return dal.ToBLL();
     }
@@ -46,10 +45,49 @@ namespace Pharmacy.DataAccessLayer.Repositories
     {
       var dal = model.ToDAL();
 
+      var prescriptionMedicine = _db.PrescriptionMedicine.Where(pm => pm.PrescriptionId == model.Id).ToList();
       try
       {
-        var updated = _db.Prescription.Include(pr => pr.PrescriptionMedicine).ThenInclude(pm => pm.Medicine).First(e => e.PrescriptionId == dal.PrescriptionId);
-        updated.PrescriptionMedicine = dal.PrescriptionMedicine;
+        var pmIds = dal.PrescriptionMedicine.Select(pm => pm.PrescriptionMedicineId).ToList();
+        var persistenceIds = new List<int>();
+        {
+          foreach (var pm in prescriptionMedicine)
+            if (pmIds.Contains(pm.PrescriptionMedicineId))
+            {
+              var dalPm = dal.PrescriptionMedicine.First(e => e.PrescriptionMedicineId == pm.PrescriptionMedicineId);
+              pm.MedicineId = dalPm.MedicineId;
+              pm.Amount = dalPm.Amount;
+              //_db.PrescriptionMedicine.Update(pm);
+              persistenceIds.Add(pm.PrescriptionMedicineId);
+            }
+            else
+            {
+              _db.PrescriptionMedicine.Remove(pm);
+            }
+
+          _db.SaveChanges();
+        }
+
+        foreach (var medicine in dal.PrescriptionMedicine)
+        {
+          if (!persistenceIds.Contains(medicine.PrescriptionMedicineId))
+          {
+            var newPm = new PrescriptionMedicine
+              {Amount = medicine.Amount, MedicineId = medicine.MedicineId, PrescriptionId = medicine.PrescriptionId};
+            _db.Add(newPm);
+            _db.SaveChanges();
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        return false;
+      }
+
+      try
+      {
+        var updated = _db.Prescription
+          .First(e => e.PrescriptionId == dal.PrescriptionId);
         updated.Buyer = dal.Buyer;
         updated.SaleTime = dal.SaleTime;
         updated.UserId = dal.UserId;
@@ -65,7 +103,6 @@ namespace Pharmacy.DataAccessLayer.Repositories
 
     public bool Delete(Prescription model)
     {
-
       return Delete(model.Id);
     }
 
@@ -117,7 +154,8 @@ namespace Pharmacy.DataAccessLayer.Repositories
     {
       try
       {
-        foreach (var pmId in _db.PrescriptionMedicine.Where(pm => pm.PrescriptionId == id).Select(e => e.PrescriptionMedicineId))
+        foreach (var pmId in _db.PrescriptionMedicine.Where(pm => pm.PrescriptionId == id)
+          .Select(e => e.PrescriptionMedicineId))
         {
           var temp = _db.PrescriptionMedicine.First(pm => pm.PrescriptionMedicineId == pmId);
           _db.PrescriptionMedicine.Remove(temp);

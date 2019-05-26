@@ -45,5 +45,10 @@ namespace Pharmacy.DataAccessLayer.Repositories
     {
       throw new NotImplementedException();
     }
+
+    public int WorksAt(int userId)
+    {
+      return _db.User.Find(userId).PharmacyId;
+    }
   }
 }
