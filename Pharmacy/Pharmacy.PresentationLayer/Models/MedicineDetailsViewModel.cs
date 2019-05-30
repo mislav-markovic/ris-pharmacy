@@ -4,16 +4,17 @@ namespace Pharmacy.PresentationLayer.Models
 {
   public class MedicineDetailsViewModel
   {
-    public MedicineDetailsViewModel(int id, string name, decimal price, int amount)
+    public MedicineDetailsViewModel(int id, string name, decimal price, int amount, int inStockpile)
     {
       Id = id;
       Name = name;
       Price = price;
       Amount = amount;
+      InStockpile = inStockpile;
     }
 
-    public MedicineDetailsViewModel(Medicine medicine, int amount) : this(medicine.Id, medicine.Name, medicine.Price,
-      amount)
+    public MedicineDetailsViewModel(Medicine medicine, int amount, int inStockpile) : this(medicine.Id, medicine.Name, medicine.Price,
+      amount, inStockpile)
     {
     }
 
@@ -23,6 +24,7 @@ namespace Pharmacy.PresentationLayer.Models
     public string Name { get; set; }
     public decimal Price { get; set; }
     public int Amount { get; set; }
+    public int InStockpile { get; set; }
     public int PrescriptionMedicineId { get; set; }
 
     protected bool Equals(MedicineDetailsViewModel other)

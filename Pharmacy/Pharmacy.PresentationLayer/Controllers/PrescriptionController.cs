@@ -70,7 +70,7 @@ namespace Pharmacy.PresentationLayer.Controllers
       var allMedicine = _medicineBc.ReadAll() ?? new List<Medicine>();
 
       model.AvailableUsers = allUsers.Select(elem => new UserViewModel(elem));
-      model.AvailableMedicine = allMedicine.Select(elem => new MedicineDetailsViewModel(elem, 0));
+      model.AvailableMedicine = allMedicine.Select(elem => new MedicineDetailsViewModel(elem, 0,0));
 
       return View(model);
     }
@@ -135,7 +135,7 @@ namespace Pharmacy.PresentationLayer.Controllers
       {
         var result = _prescriptionBc.UpdatePrescription(id, updatedModel);
 
-        return RedirectToAction(nameof(Details), result.Id);
+        return RedirectToAction(nameof(Details), new {id = result.Id });
       }
       catch (Exception e)
       {
@@ -166,9 +166,9 @@ namespace Pharmacy.PresentationLayer.Controllers
 
       var next = _prescriptionBc.GetIdOfNext(result.Id);
       var prev = _prescriptionBc.GetIdOfPrevious(result.Id);
-      var userVm = new UserViewModel(result.User.Id, result.User.Username);
+      var userVm = new UserViewModel(result.User);
       var model = new PrescriptionDetailsVIewModel(result.Id, result.Buyer, result.SaleTime, userVm,
-        result.Medicine, next, prev);
+        result.Medicine, next, prev, result.User.Pharmacy.Stockpile);
 
       return model;
     }
@@ -182,7 +182,7 @@ namespace Pharmacy.PresentationLayer.Controllers
       if (model == null) return null;
 
       var result = new PrescriptionCreateViewModel(model, allUsers.Select(u => new UserViewModel(u)));
-      result.AvailableMedicine = allMedicine.Select(m => new MedicineDetailsViewModel(m, 0));
+      result.AvailableMedicine = allMedicine.Select(m => new MedicineDetailsViewModel(m, 0, 0));
       return result;
     }
   }

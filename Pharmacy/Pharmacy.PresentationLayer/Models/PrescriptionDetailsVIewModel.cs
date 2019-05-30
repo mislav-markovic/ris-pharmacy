@@ -8,9 +8,13 @@ namespace Pharmacy.PresentationLayer.Models
   public class PrescriptionDetailsVIewModel
   {
     public PrescriptionDetailsVIewModel(int id, string buyer, DateTime saleTime, UserViewModel user,
-      IList<PrescriptionMedicine> medicine, int? nextPrescriptionId, int? previousPrescriptionId)
+      IEnumerable<PrescriptionMedicine> medicine, int? nextPrescriptionId, int? previousPrescriptionId,
+      IEnumerable<Stockpile> stockpile)
     {
-      var medicineVm = medicine.Select(elem => new MedicineDetailsViewModel(elem.Medicine, elem.Amount){PrescriptionMedicineId = elem.PrescriptionMedicineId});
+      var medicineVm = medicine.Select(elem =>
+        new MedicineDetailsViewModel(elem.Medicine, elem.Amount,
+            stockpile.FirstOrDefault(e => e.MedicineId == elem.MedicineId)?.Amount ?? 0)
+          {PrescriptionMedicineId = elem.PrescriptionMedicineId});
       Id = id;
       Buyer = buyer;
       SaleTime = saleTime;
@@ -22,7 +26,7 @@ namespace Pharmacy.PresentationLayer.Models
 
     public PrescriptionDetailsVIewModel(Prescription prescription, int? next, int? prev) : this(prescription.Id,
       prescription.Buyer, prescription.SaleTime, new UserViewModel(prescription.User), prescription.Medicine, next,
-      prev)
+      prev, prescription.User.Pharmacy.Stockpile)
     {
     }
 

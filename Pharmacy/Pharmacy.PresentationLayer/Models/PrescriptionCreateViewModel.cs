@@ -10,7 +10,7 @@ namespace Pharmacy.PresentationLayer.Models
     public PrescriptionCreateViewModel(string buyer, DateTime saleTime, int chosenUser,
       IEnumerable<UserViewModel> availableUsers, IList<PrescriptionMedicine> medicine)
     {
-      var medicineVm = medicine.Select(elem => new MedicineDetailsViewModel(elem.Medicine, elem.Amount){PrescriptionMedicineId = elem.PrescriptionMedicineId});
+      var medicineVm = medicine.Select(elem => new MedicineDetailsViewModel(elem.Medicine, elem.Amount, 0){PrescriptionMedicineId = elem.PrescriptionMedicineId});
       Buyer = buyer;
       SaleTime = saleTime;
       ChosenUserId = chosenUser;

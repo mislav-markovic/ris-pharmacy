@@ -33,6 +33,12 @@
       @Html.DisplayFor(model => model.Id)
     </dd>
     <dt class="col-sm-2">
+      @Html.DisplayNameFor(model => model.User.PharmacyName)
+    </dt>
+    <dd class="col-sm-10">
+      @Html.DisplayFor(model => model.User.PharmacyName)
+    </dd>
+    <dt class="col-sm-2">
       @Html.DisplayNameFor(model => model.Buyer)
     </dt>
     <dd class="col-sm-10">
@@ -59,11 +65,12 @@
   </dl>
   <table class="table table-responsive table-striped" id="medicine-table">
     <thead>
-    <tr>
-      <th>Medicine Name</th>
-      <th>Amount</th>
-      <th>Price per unit</th>
-    </tr>
+      <tr>
+        <th>Medicine Name</th>
+        <th>Amount</th>
+        <th>Price per unit</th>
+        <th>Stockpile</th>
+      </tr>
     </thead>
     <tbody>
     @foreach(var medicine in Model.Medicine)
@@ -77,6 +84,9 @@
         </td>
         <td>
           @medicine.Price
+        </td>
+        <td>
+          @medicine.InStockpile
         </td>
       </tr>
     }

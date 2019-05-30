@@ -1,26 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Pharmacy.BusinessLayer.Models;
+﻿using Pharmacy.BusinessLayer.Models;
 
 namespace Pharmacy.PresentationLayer.Models
 {
   public class UserViewModel
   {
-    public int Id { get; }
-    public string Username { get; }
-
-    public UserViewModel(int id, string username)
+    public UserViewModel(int id, string username, string pharmacyName)
     {
       Id = id;
       Username = username;
+      PharmacyName = pharmacyName;
     }
 
-    public UserViewModel(User user)
+    public UserViewModel(User user) : this(user.Id, user.Username, user.Pharmacy?.Name)
     {
-      Id = user.Id;
-      Username = user.Username;
     }
+
+    public int Id { get; }
+    public string Username { get; }
+    public string PharmacyName { get; }
   }
 }

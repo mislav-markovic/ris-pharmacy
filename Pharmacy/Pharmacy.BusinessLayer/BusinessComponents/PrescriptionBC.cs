@@ -30,7 +30,11 @@ namespace Pharmacy.BusinessLayer.BusinessComponents
 
     public Prescription GetPrescription(int prescriptionId)
     {
-      return _prescriptionRepository.Read(prescriptionId);
+      var result = _prescriptionRepository.Read(prescriptionId);
+      var pharmacyId = _userRepository.WorksAt(result.User.Id);
+      var pharmacy = _pharmacyRepository.Read(pharmacyId);
+      result.User.Pharmacy = pharmacy;
+      return result;
     }
 
     public Prescription GetFirst()

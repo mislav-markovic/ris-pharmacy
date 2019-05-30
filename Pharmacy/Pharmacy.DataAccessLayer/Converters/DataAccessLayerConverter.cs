@@ -46,7 +46,11 @@ namespace Pharmacy.DataAccessLayer.Converters
         model?.PharmacyWarehouse.Where(pw => pw.CurrentlySupplies).Select(pw => pw.Warehouse.ToBLL());
       return model == null
         ? null
-        : new BLLModels.Pharmacy {Id = model.PharmacyId, Name = model.Name, Location = model.Location.ToBLL()};
+        : new BLLModels.Pharmacy
+        {
+          Id = model.PharmacyId, Name = model.Name, Location = model.Location.ToBLL(),
+          Stockpile = model.Stockpile?.Select(e => e.ToBLL()).ToList()
+        };
     }
 
     public static BLLModels.Prescription ToBLL(this DALModels.Prescription model)
