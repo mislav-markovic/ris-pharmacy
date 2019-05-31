@@ -93,7 +93,7 @@ namespace Pharmacy.PresentationLayer.Controllers
       try
       {
         var result = _prescriptionBc.AddPrescription(createModel);
-        return RedirectToAction(nameof(Details), result);
+        return RedirectToAction(nameof(Details), new {id = result });
       }
       catch (Exception e)
       {
